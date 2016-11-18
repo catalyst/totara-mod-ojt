@@ -105,4 +105,19 @@ class rb_ojt_evaluation_embedded extends rb_base_embedded {
     public function is_capable($reportfor, $report) {
         return true;
     }
+
+    /**
+     * Ignore this reportbuilder source in Totara core unit tests
+     * PHPUnit test for this custom reportbuilder source should be inside of this plugin.
+     * TODO: write unit tests for this embedded source.
+     *
+     * @return true if this is a phpunit test execution and false otherwise.
+     */
+    public function is_ignored() {
+        if (PHPUNIT_TEST) {
+            return true;
+        }
+
+        return false;
+    }
 }

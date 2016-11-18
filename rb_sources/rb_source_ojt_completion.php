@@ -72,6 +72,20 @@ class rb_source_ojt_completion extends rb_base_source {
     }
 
     /**
+     * Ignore this reportbuilder source in Totara core unit test /totara/reportbuilder/tests/column_test.php
+     * PHPUnit test for this custom reportbuilder source is now inside of this plugin.
+     *
+     * @return true if this is a phpunit test execution and false otherwise.
+     */
+    public function is_ignored() {
+        if (PHPUNIT_TEST) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Global report restrictions are not yet implemented for this source.
      * @return boolean
      */

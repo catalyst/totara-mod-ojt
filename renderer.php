@@ -136,6 +136,8 @@ class mod_ojt_renderer extends plugin_renderer_base {
                     $completionicon = $item->status == OJT_COMPLETE ? 'i/completion-manual-y' : 'i/completion-manual-n';
                     $cellcontent = $this->output->pix_icon($completionicon, '', 'core',
                         array('class' => 'ojt-completion-toggle', 'ojt-item-id' => $item->id));
+                    // Fix missing attribute ojt-item-id, see docs for method fix_pix_icon_add_attribute().
+                    $cellcontent = $this->fix_pix_icon_add_attribute($cellcontent , array('ojt-item-id' => $item->id));
                     $cellcontent .= html_writer::tag('textarea', $item->comment,
                         array('name' => 'comment-'.$item->id, 'rows' => 3,
                             'class' => 'ojt-completion-comment', 'ojt-item-id' => $item->id));
@@ -177,7 +179,8 @@ class mod_ojt_renderer extends plugin_renderer_base {
                         $witnessicon = $item->witnessedby ? 'i/completion-manual-y' : 'i/completion-manual-n';
                         $cellcontent .= $this->output->pix_icon($witnessicon, '', 'core',
                             array('class' => 'ojt-witness-toggle', 'ojt-item-id' => $item->id));
-
+                        // Fix missing attribute ojt-item-id, see docs for method fix_pix_icon_add_attribute().
+                        $cellcontent = $this->fix_pix_icon_add_attribute($cellcontent , array('ojt-item-id' => $item->id));
                     } else {
                         // Show static witness info
                         if (!empty($item->witnessedby)) {
@@ -245,18 +248,55 @@ class mod_ojt_renderer extends plugin_renderer_base {
         }
 
         $out .= html_writer::start_tag('div', array('id' => 'ojt-eval-icon-templates'));
-        $out .= $this->output->pix_icon('i/grade_correct', get_string('completionstatus'.OJT_COMPLETE, 'ojt'),
+        // Fix missing attributes:
+        $pixicon = $this->output->pix_icon('i/grade_correct', get_string('completionstatus'.OJT_COMPLETE, 'ojt'),
             'core', array('id' => 'ojt-topic-status-icon-'.OJT_COMPLETE));
-        $out .= $this->output->pix_icon('i/grade_partiallycorrect', get_string('completionstatus'.OJT_REQUIREDCOMPLETE, 'ojt'),
+        $pixicon = $this->fix_pix_icon_add_attribute($pixicon, array('id' => 'ojt-topic-status-icon-'.OJT_COMPLETE));
+        $out .= $pixicon;
+        $pixicon = $this->output->pix_icon('i/grade_partiallycorrect', get_string('completionstatus'.OJT_REQUIREDCOMPLETE, 'ojt'),
             'core', array('id' => 'ojt-topic-status-icon-'.OJT_REQUIREDCOMPLETE));
-        $out .= $this->output->pix_icon('i/grade_incorrect', get_string('completionstatus'.OJT_INCOMPLETE, 'ojt'),
+        $pixicon = $this->fix_pix_icon_add_attribute($pixicon, array('id' => 'ojt-topic-status-icon-'.OJT_REQUIREDCOMPLETE));
+        $out .= $pixicon;
+        $pixicon .= $this->output->pix_icon('i/grade_incorrect', get_string('completionstatus'.OJT_INCOMPLETE, 'ojt'),
             'core', array('id' => 'ojt-topic-status-icon-'.OJT_INCOMPLETE));
+        $pixicon = $this->fix_pix_icon_add_attribute($pixicon, array('id' => 'ojt-topic-status-icon-'.OJT_INCOMPLETE));
+        $out .= $pixicon;
+        // Fix end.
         $out .= html_writer::end_tag('div');
 
         $out .= html_writer::end_tag('div');  // mod-ojt-user-ojt
 
 
         return $out;
+    }
+
+    /**
+     * Method pix_icon() can only create attributes 'class' and 'alt'. This limitation is hidden in the other
+     * method create_from_pix_icon() at /lib/classes/output/flex_icon.php.
+     *
+     * This function is to be used in all places where pix_icon() was called with 4th parameter as
+     * array of custom attributes which are not 'class' and 'alt'
+     *
+     * Checks if specified custom attributes exist and add them if they don't.
+     *
+     * TODO: implement fix by overriding original method pix_icon() somehow.
+     *
+     * @param $pix_icon string containing the output of pix_icon()
+     * @param $attributes array of custom attributes that need to be added to the output of pix_icon()
+     *
+     * @return string with a output of pix_icon() plus added custom attributes.
+     */
+    protected function fix_pix_icon_add_attribute($pixicon, $attributes) {
+        // Check if $pix_icon actually contains the above attributes:
+        foreach ($attributes as $attribute => $value) {
+            $pattern = '/' . $attribute . '=\s*[\',"]' . $value . '[\',"]/';
+            if (!preg_match($pattern, $pixicon)) {
+                $replace = ' ' . $attribute . '="' . $value . '"><';
+                $pixicon = str_replace('><', $replace, $pixicon);
+            }
+        }
+
+        return $pixicon;
     }
 
     protected function list_topic_item_files($contextid, $userid, $topicitemid) {

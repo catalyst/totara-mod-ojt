@@ -32,7 +32,7 @@ defined('MOODLE_INTERNAL') || die();
 $plugin->component = 'mod_ojt';
 $plugin->version = 2016031401;
 $plugin->release = 'v1.0';
-$plugin->requires = '9.0';
+$plugin->requires = 2015111606.00;
 $plugin->maturity = MATURITY_STABLE;
 $plugin->cron = 900;
 $plugin->dependencies = array();

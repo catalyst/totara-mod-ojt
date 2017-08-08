@@ -48,11 +48,11 @@ class backup_ojt_activity_structure_step extends backup_activity_structure_step 
 
         $completions = new backup_nested_element('completions');
         $completion = new backup_nested_element('completion', array('id'), array(
-            'userid', 'type', 'topicid', 'topicitemid', 'status', 'comment', 'timemodified', 'modifiedby'));
+            'userid', 'type', 'topicid', 'topicitemid', 'status', 'complcomment', 'timemodified', 'modifiedby'));
 
         $topic_signoffs = new backup_nested_element('topic_signoffs');
         $topic_signoff = new backup_nested_element('topic_signoff', array('id'), array(
-            'userid', 'topicid', 'signedoff', 'comment', 'timemodified', 'modifiedby'));
+            'userid', 'topicid', 'signedoff', 'timemodified', 'modifiedby'));
 
         $item_witnesses = new backup_nested_element('item_witnesses');
         $item_witness = new backup_nested_element('item_witness', array('id'), array(

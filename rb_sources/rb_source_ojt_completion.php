@@ -82,6 +82,7 @@ class rb_source_ojt_completion extends rb_base_source {
         $this->defaultfilters = $this->define_defaultfilters();
         $this->requiredcolumns = $this->define_requiredcolumns();
         $this->sourcetitle = get_string('ojtcompletion', 'rb_source_ojt_completion');
+        $this->usedcomponents[] = 'mod_ojt';
 
         parent::__construct();
     }
@@ -187,7 +188,7 @@ class rb_source_ojt_completion extends rb_base_source {
                 'name',
                 get_string('topic', 'rb_source_ojt_completion'),
                 'ojt_topic.name',
-                array('joins' => 'ojt_topic')
+                array('joins' => 'ojt_topic', 'displayfunc' => 'format_string')
             ),
             new rb_column_option(
                 'ojt_topic_signoff',
@@ -210,7 +211,7 @@ class rb_source_ojt_completion extends rb_base_source {
                 $DB->sql_fullname("topicsignoffuser.firstname", "topicsignoffuser.lastname"),
                 array(
                     'joins' => 'topicsignoffuser',
-                    'displayfunc' => 'link_user',
+                    'displayfunc' => 'user_link',
                     'extrafields' => array('user_id' => "topicsignoffuser.id"),
                 )
 
@@ -243,7 +244,7 @@ class rb_source_ojt_completion extends rb_base_source {
                 $DB->sql_fullname("modifyuser.firstname", "modifyuser.lastname"),
                 array(
                     'joins' => 'modifyuser',
-                    'displayfunc' => 'link_user',
+                    'displayfunc' => 'user_link',
                     'extrafields' => array('user_id' => "modifyuser.id"),
                 )
             ),
@@ -256,6 +257,7 @@ class rb_source_ojt_completion extends rb_base_source {
         $this->add_totara_job_columns($columnoptions);
         $this->add_core_tag_columns('core', 'course', $columnoptions);
         $this->add_totara_cohort_course_columns($columnoptions);
+var_dump($this);
 
         return $columnoptions;
     }
@@ -403,45 +405,6 @@ class rb_source_ojt_completion extends rb_base_source {
         $requiredcolumns = array();
         return $requiredcolumns;
     }
-
-    //
-    //
-    // Source specific column display methods
-    //
-    //
-
-    function rb_display_ojt_completion_status($status, $row, $isexport) {
-        if (empty($status)) {
-            return get_string('completionstatus'.OJT_INCOMPLETE, 'ojt');
-        } else {
-            return get_string('completionstatus'.$status, 'ojt');
-        }
-    }
-
-    function rb_display_ojt_type($type, $row, $isexport) {
-        return get_string('type'.$type, 'ojt');
-    }
-
-    function rb_display_ojt_link($ojtname, $row, $isexport) {
-        return html_writer::link(new moodle_url('/mod/ojt/evaluate.php',
-            array('userid' => $row->userid, 'bid' => $row->ojtid)), $ojtname);
-
-    }
-
-    function rb_display_ojt_evaluate_link($ojtname, $row, $isexport) {
-        return html_writer::link(new moodle_url('/mod/ojt/evaluate.php',
-            array('userid' => $row->userid, 'bid' => $row->ojtid)), get_string('evaluate', 'rb_source_ojt_completion'));
-
-    }
-
-    function rb_display_ojt_topic_signedoff($signedoff, $row, $isexport) {
-
-        return !empty($signedoff) ? get_string('yes') : get_string('no');
-
-    }
-
-
-
 
     //
     //

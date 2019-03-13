@@ -63,6 +63,7 @@ class rb_source_ojt_topic_item_completion extends rb_base_source {
         $this->sourcetitle = get_string('ojttopicitemcompletion', 'rb_source_ojt_topic_item_completion');
         $this->sourcewhere = 'base.type = '.OJT_CTYPE_TOPICITEM;
         $this->usedcomponents[] = 'mod_ojt';
+        $this->usedcomponents[] = 'totara_cohort';
 
         parent::__construct();
     }
@@ -186,7 +187,7 @@ class rb_source_ojt_topic_item_completion extends rb_base_source {
                 $DB->sql_fullname("modifyuser.firstname", "modifyuser.lastname"),
                 array(
                     'joins' => 'modifyuser',
-                    'displayfunc' => 'link_user',
+                    'displayfunc' => 'user_link',
                     'extrafields' => array('user_id' => "modifyuser.id"),
                 )
             ),

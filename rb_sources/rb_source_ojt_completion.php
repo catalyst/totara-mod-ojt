@@ -83,6 +83,7 @@ class rb_source_ojt_completion extends rb_base_source {
         $this->requiredcolumns = $this->define_requiredcolumns();
         $this->sourcetitle = get_string('ojtcompletion', 'rb_source_ojt_completion');
         $this->usedcomponents[] = 'mod_ojt';
+        $this->usedcomponents[] = 'totara_cohort';
 
         parent::__construct();
     }
@@ -257,7 +258,6 @@ class rb_source_ojt_completion extends rb_base_source {
         $this->add_totara_job_columns($columnoptions);
         $this->add_core_tag_columns('core', 'course', $columnoptions);
         $this->add_totara_cohort_course_columns($columnoptions);
-var_dump($this);
 
         return $columnoptions;
     }

@@ -117,6 +117,11 @@ class restore_ojt_activity_structure_step extends restore_activity_structure_ste
         $data->topicid = $this->get_mappingid('ojt_topic', $data->topicid);
         $data->topicitemid = $this->get_mappingid('ojt_topic_item', $data->topicitemid);
         $data->modifiedby = $this->get_mappingid('user', $data->userid);
+        //Legacy backups may still store the complcomment as "comment"
+        if(isset($data->comment)) {
+            $data->complcomment = $data->comment;
+            unset($data->comment);
+        }
 
         // Add ojt topic.
         $newitemid = $DB->insert_record('ojt_completion', $data);

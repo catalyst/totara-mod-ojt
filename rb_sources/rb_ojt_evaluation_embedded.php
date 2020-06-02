@@ -21,7 +21,7 @@
  */
 
 global $CFG;
-require_once($CFG->dirroot.'/totara/reportbuilder/classes/rb_base_content.php');
+use totara_reportbuilder\rb\content\base;
 
 # Include the ojt rb source, to ensure all default settings get created upon report creation
 require_once($CFG->dirroot.'/mod/ojt/rb_sources/rb_source_ojt_completion.php');

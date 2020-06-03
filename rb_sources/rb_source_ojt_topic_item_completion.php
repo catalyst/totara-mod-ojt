@@ -61,6 +61,7 @@ class rb_source_ojt_topic_item_completion extends rb_base_source {
         $this->defaultfilters = $this->define_defaultfilters();
         $this->requiredcolumns = $this->define_requiredcolumns();
         $this->sourcetitle = get_string('ojttopicitemcompletion', 'rb_source_ojt_topic_item_completion');
+        $this->sourcelabel = get_string('ojttopicitemcompletion', 'rb_source_ojt_topic_item_completion');
         $this->sourcewhere = 'base.type = '.OJT_CTYPE_TOPICITEM;
         $this->usedcomponents[] = 'mod_ojt';
         $this->usedcomponents[] = 'totara_cohort';

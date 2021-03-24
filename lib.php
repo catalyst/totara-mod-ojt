@@ -33,6 +33,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/comment/lib.php');
+
 /**
  * OJT completion types
  */
@@ -73,6 +75,8 @@ function ojt_supports($feature) {
         case FEATURE_BACKUP_MOODLE2:
             return true;
         case FEATURE_COMPLETION_HAS_RULES:
+            return true;
+        case FEATURE_ARCHIVE_COMPLETION:
             return true;
         default:
             return null;
@@ -582,3 +586,72 @@ function ojt_comment_template() {
     return $renderer->comment_template();
 }
 
+/**
+ * Reset a users completion status in an ojt so they can retake the activity
+ * mainly used for certification recerts
+ *
+ * @param int $userid
+ * @param int $courseid
+ * @param int $windowopens Unused, the timestamp for when a recertification window opens
+ */
+function ojt_archive_completion($userid, $courseid, $windowsopen = null) {
+    global $DB;
+
+    $sql = "SELECT oc.id as oc_id,
+       oc.userid,
+       oc.topicid,
+       oc.topicitemid,
+       o.* FROM {ojt} o
+       INNER JOIN {ojt_completion} oc ON o.id = oc.ojtid
+       WHERE course = :courseid
+       AND userid = :userid";
+    $params = array('userid' => $userid, 'courseid' => $courseid);
+
+    if ($completions = $DB->get_records_sql($sql, $params)) {
+        $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
+        $completion = new completion_info($course);
+
+        foreach ($completions as $ojtcompletion) {
+            $cm = get_coursemodule_from_instance('ojt', $ojtcompletion->id, $courseid);
+            $context = context_module::instance($cm->id);
+
+            $DB->delete_records('ojt_topic_signoff', array(
+                'userid' => $userid,
+                'topicid' => $ojtcompletion->topicid
+            ));
+            $DB->delete_records('ojt_completion', array(
+                'id' => $ojtcompletion->oc_id
+            ));
+            $DB->delete_records('ojt_item_witness', array(
+                'topicitemid' => $ojtcompletion->topicitemid,
+                'userid' => $userid
+            ));
+
+            $fs = get_file_storage();
+            $files = $fs->get_area_files(
+                $context->id,
+                'mod_ojt',
+                'topicitemfiles' . $ojtcompletion->topicitemid,
+                $userid,
+                'itemid, filepath, filename',
+                false
+            );
+            foreach ($files as $file) {
+                $file->delete();
+            }
+
+            comment::delete_comments([
+                'contextid' => $context->id,
+                'itemid' => $userid
+            ]);
+
+            // Reset viewed.
+            $completion->set_module_viewed_reset($cm, $userid);
+            // And reset completion, in case viewed is not a required condition.
+            $completion->update_state($cm, COMPLETION_INCOMPLETE, $userid);
+        }
+
+        $completion->invalidatecache($courseid, $userid, true);
+    }
+    return true;
+}

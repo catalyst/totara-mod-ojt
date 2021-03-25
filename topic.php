@@ -52,7 +52,7 @@ if ($delete) {
 
     ojt_delete_topic($topicid);
     $redirecturl = new moodle_url('/mod/ojt/manage.php', array('cmid' => $cm->id));
-    totara_set_notification(get_string('topicdeleted', 'ojt'), $redirecturl, array('class' => 'notifysuccess'));
+    redirect($redirecturl, get_string('topicdeleted', 'ojt'));
 }
 
 $form = new ojt_topic_form(null, array('courseid' => $course->id, 'ojtid' => $ojtid));

@@ -99,7 +99,7 @@ if ($data = $mform->get_data()) {
     $data = file_postupdate_standard_filemanager($data, 'topicitemfiles',
             $fileoptions, $modcontext, 'mod_ojt', "topicitemfiles{$topicitemid}", $userid);
 
-    totara_set_notification(get_string('filesupdated', 'ojt'), $returnurl, array('class' => 'notifysuccess'));
+    \core\notification::success(get_string('filesupdated', 'ojt'));
 } else if ($mform->is_cancelled()) {
     redirect($returnurl);
 }

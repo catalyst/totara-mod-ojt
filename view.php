@@ -42,7 +42,7 @@ if ($id) {
     $course     = $DB->get_record('course', array('id' => $ojt->course), '*', MUST_EXIST);
     $cm         = get_coursemodule_from_instance('ojt', $ojt->id, $course->id, false, MUST_EXIST);
 } else {
-    error('You must specify a course_module ID or an instance ID');
+    print_error('missingid', 'mod_ojt');
 }
 
 require_login($course, true, $cm);

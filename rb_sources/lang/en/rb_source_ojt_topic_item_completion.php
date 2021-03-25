@@ -7,6 +7,7 @@ $string['comment'] = 'Comment';
 $string['completionstatus'] = 'Completion status';
 $string['evaluatelink'] = 'Evaluate link';
 $string['evaluate'] = 'Evaluate';
+$string['mandatory'] = 'Mandatory';
 $string['modifiedby'] = 'Modified by';
 $string['timemodified'] = 'Time modified';
 $string['topic'] = 'Topic';

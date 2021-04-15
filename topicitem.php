@@ -29,6 +29,7 @@ $ojtid = required_param('bid', PARAM_INT); // OJT instance id.
 $topicid  = required_param('tid', PARAM_INT);  // Topic id.
 $itemid = optional_param('id', 0, PARAM_INT);  // Topic item id.
 $delete = optional_param('delete', 0, PARAM_BOOL);
+$action  = optional_param('action', '', PARAM_ALPHANUMEXT);  // Action
 
 $ojt = $DB->get_record('ojt', array('id' => $ojtid), '*', MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $ojt->course), '*', MUST_EXIST);
@@ -79,6 +80,42 @@ if ($data = $form->get_data()) {
     }
 
     redirect(new moodle_url('/mod/ojt/manage.php', array('cmid' => $cm->id)));
+}
+
+switch ($action) {
+    case 'topicitemdown':
+        $topicitem = $DB->get_record('ojt_topic_item', array('id' => $itemid), '*', MUST_EXIST);
+        $itemrs = $DB->get_records('ojt_topic_item', array('topicid' => $topicid), 'position');
+
+        $itemrs = array_values($itemrs);
+
+        if (ojt_array_move($itemrs, $topicitem->position, $topicitem->position + 1) !== false) {
+            foreach ($itemrs as $index => $itemr) {
+                $itemr->position = $index;
+                $DB->update_record('ojt_topic_item', $itemr);
+            }
+        }
+
+        redirect(new moodle_url('/mod/ojt/manage.php', array('cmid' => $cm->id)), get_string('topicitemreordered', 'ojt'));
+        break;
+
+    case 'topicitemup':
+        $topicitem = $DB->get_record('ojt_topic_item', array('id' => $itemid), '*', MUST_EXIST);
+        $itemrs = $DB->get_records('ojt_topic_item', array('topicid' => $topicid), 'position');
+
+        $itemrs = array_values($itemrs);
+
+        if (ojt_array_move($itemrs, $topicitem->position, $topicitem->position - 1) !== false) {
+            foreach ($itemrs as $index => $itemr) {
+                $itemr->position = $index;
+                $DB->update_record('ojt_topic_item', $itemr);
+            }
+        }
+
+        redirect(new moodle_url('/mod/ojt/manage.php', array('cmid' => $cm->id)), get_string('topicitemreordered', 'ojt'));
+        break;
+    default:
+        break;
 }
 
 // Print the page header.

@@ -60,7 +60,7 @@ function ojt_get_user_ojt($ojtid, $userid) {
         LEFT JOIN {ojt_item_witness} bw ON bw.topicitemid = i.id AND bw.userid = ?
         LEFT JOIN {user} witnessuser ON bw.witnessedby = witnessuser.id
         WHERE i.topicid {$insql}
-        ORDER BY i.topicid, i.id";
+        ORDER BY i.topicid, i.position, i.id";
     $params = array_merge(array(OJT_CTYPE_TOPICITEM, $userid, $userid), $params);
     $items = $DB->get_records_sql($sql, $params);
 
@@ -82,7 +82,7 @@ function ojt_get_user_topics($userid, $ojtid) {
         LEFT JOIN {ojt_topic_signoff} s ON t.id = s.topicid AND s.userid = ?
         LEFT JOIN {user} su ON s.modifiedby = su.id
         WHERE t.ojtid = ?
-        ORDER BY t.id';
+        ORDER BY t.position, t.id';
     return $DB->get_records_sql($sql, array(OJT_CTYPE_TOPIC, $userid, $userid, $ojtid));
 }
 
@@ -345,4 +345,84 @@ function ojt_can_evaluate($userid, $context) {
     }
 
     return true;
+}
+
+/**
+ * Reorder topics and topic items in edit mode.
+ *
+ * @param $items
+ * @param $oldpos
+ * @param $newpos
+ * @return false
+ */
+function ojt_array_move(&$items, $oldpos, $newpos) {
+    if ($oldpos == $newpos) {
+        return false;
+    }
+    array_splice(
+        $items,
+        max($newpos, 0),
+        0,
+        array_splice(
+            $items,
+            max($oldpos, 0),
+            1)
+    );
+}
+
+/**
+ * Ensure topic positions are ordered as expected.
+ *
+ * Positions start with a default value of '0', so implicit ordering from topic ID is used.
+ *
+ * @param object $ojt An OJT record.
+ * @param bool $includeitems Reorder topic items as well?
+ */
+function ojt_reorder_topics($ojt, $includeitems = true) {
+    global $DB;
+
+    $topicrs = $DB->get_recordset_sql(
+        "SELECT * FROM {ojt_topic} WHERE ojtid = :ojtid ORDER BY position, id",
+        array('ojtid' => $ojt->id)
+    );
+
+    $topiccounter = 0;
+    foreach ($topicrs as $topic) {
+        if ($topiccounter != $topic->position) {
+            // Update OJT topic position.
+            $topic->position = $topiccounter;
+            $DB->update_record('ojt_topic', $topic);
+        }
+        if ($includeitems) {
+            ojt_reorder_topic_items($topic);
+        }
+
+        $topiccounter++;
+    }
+}
+
+/**
+ * Ensure topic item positions are ordered as expected.
+ *
+ * Positions start with a default value of '0', so implicit ordering from topic item ID is used.
+ *
+ * @param object $topic An OJT topic record.
+ */
+function ojt_reorder_topic_items($topic) {
+    global $DB;
+
+    $itemrs = $DB->get_recordset_sql(
+        "SELECT * FROM {ojt_topic_item} WHERE topicid = :topicid ORDER BY position, id",
+        array('topicid' => $topic->id)
+    );
+
+    $itemcounter = 0;
+    foreach ($itemrs as $item) {
+        if ($itemcounter != $item->position) {
+            // Update OJT topic item position.
+            $item->position = $itemcounter;
+            $DB->update_record('ojt_topic_item', $item);
+        }
+        $itemcounter++;
+    }
 }

@@ -60,6 +60,26 @@ function xmldb_ojt_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016031400, 'ojt');
     }
 
+    if ($oldversion < 2021041400) {
+        $table = new xmldb_table('ojt_topic');
+        $field = new xmldb_field('position', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'allowcomments');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $table = new xmldb_table('ojt_topic_item');
+        $field = new xmldb_field('position', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'allowselffileuploads');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $ojtrs = $DB->get_recordset('ojt');
+        foreach ($ojtrs as $ojt) {
+            ojt_reorder_topics($ojt);
+        }
+
+        upgrade_mod_savepoint(true, 2021041400, 'ojt');
+    }
 
     return true;
 }

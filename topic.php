@@ -20,10 +20,11 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_ojt\form\topic_form;
+
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
-require_once(dirname(__FILE__).'/forms.php');
 
 $ojtid = required_param('bid', PARAM_INT); // OJT instance id.
 $topicid  = optional_param('id', 0, PARAM_INT);  // Topic id.
@@ -56,7 +57,7 @@ if ($delete) {
     redirect($redirecturl, get_string('topicdeleted', 'ojt'));
 }
 
-$form = new ojt_topic_form(null, array('courseid' => $course->id, 'ojtid' => $ojtid));
+$form = new topic_form(null, array('courseid' => $course->id, 'ojtid' => $ojtid));
 if ($data = $form->get_data()) {
     // Save topic
     $topic = new stdClass();

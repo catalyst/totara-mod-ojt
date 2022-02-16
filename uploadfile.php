@@ -24,6 +24,8 @@
  * Upload a file to a ojt topic item
  */
 
+use mod_ojt\form\topic_item_files_form;
+
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->dirroot . '/totara/plan/lib.php');
 require_once($CFG->dirroot . '/totara/core/js/lib/setup.php');
@@ -84,7 +86,7 @@ $item->userid = $userid;
 $item = file_prepare_standard_filemanager($item, 'topicitemfiles',
         $fileoptions, $modcontext, 'mod_ojt', "topicitemfiles{$topicitemid}", $userid);
 
-$mform = new ojt_topicitem_files_form(
+$mform = new topic_item_files_form(
     null,
     array(
         'topicitemid' => $topicitemid,

@@ -248,6 +248,9 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
                         ojtobj.replaceIcon(signoffimg, 'completion-manual-n');
                     }
 
+                    // Update the topic's completion too.
+                    ojtobj.setTopicStatusIcon(data.topic.status, $('#ojt-topic-' + data.topic.topicid + ' .ojt-topic-status'));
+
                     $('.mod-ojt-topic-signoff[ojt-topic-id=' + topicid + '] .mod-ojt-topic-modifiedstr').html(data.modifiedstr);
                 },
                 error: function(data) {

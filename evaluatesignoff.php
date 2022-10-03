@@ -75,10 +75,12 @@ if ($currentsignoff = $DB->get_record('ojt_topic_signoff', array('userid' => $us
 }
 
 $modifiedstr = ojt_get_modifiedstr($topicsignoff->timemodified);
+$topiccompletion = ojt_update_topic_completion($userid, $ojtid, $topicid);
 
 $jsonparams = array(
     'topicsignoff' => $topicsignoff,
-    'modifiedstr' => $modifiedstr
+    'modifiedstr' => $modifiedstr,
+    'topic' => $topiccompletion
 );
 
 echo json_encode($jsonparams);

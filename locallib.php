@@ -131,20 +131,37 @@ function ojt_update_topic_completion($userid, $ojtid, $topicid) {
     $items = $DB->get_records_sql($sql);
 
     $status = OJT_COMPLETE;
-    foreach ($items as $item) {
-        if ($item->status == OJT_INCOMPLETE) {
-            if ($item->completionreq == OJT_REQUIRED) {
-                // All required items not complete - bail!
+    if (!empty($items)) {
+        // Iterate through topic items, check conditions to determine if OJT is incomplete.
+        foreach ($items as $item) {
+            if ($item->status == OJT_INCOMPLETE) {
+                if ($item->completionreq == OJT_REQUIRED) {
+                    // All required items not complete - bail!
+                    $status = OJT_INCOMPLETE;
+                    break;
+                } else if ($item->completionreq == OJT_OPTIONAL) {
+                    // Degrade status a bit
+                    $status = OJT_REQUIREDCOMPLETE;
+                }
+            } else if (!empty($item->managersignoff) && empty($item->signedoff)) {
+                // Item requires manager sign-off and isn't signed off - also bail!
                 $status = OJT_INCOMPLETE;
                 break;
-            } else if ($item->completionreq == OJT_OPTIONAL) {
-                // Degrade status a bit
-                $status = OJT_REQUIREDCOMPLETE;
             }
-        } else if (!empty($item->managersignoff) && empty($item->signedoff)) {
-            // Item requires manager sign-off and isn't signed off - also bail!
+        }
+    } else {
+        // If there are no items in the topic, check topic manager sign-off conditions.
+        $topicsignedoff = $DB->get_field_sql(
+            'SELECT s.signedoff
+            FROM {ojt_topic} t
+            LEFT JOIN {ojt_topic_signoff} s
+                ON s.topicid = ?
+                AND s.userid = ?',
+            [$topicid, $userid],
+            MUST_EXIST
+        );
+        if (!empty($ojt->managersignoff) && empty($topicsignedoff)) {
             $status = OJT_INCOMPLETE;
-            break;
         }
     }
 

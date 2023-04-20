@@ -115,20 +115,33 @@ function ojt_update_topic_completion($userid, $ojtid, $topicid) {
 
     $ojt = $DB->get_record('ojt', array('id' => $ojtid), '*', MUST_EXIST);
 
-    // Check if all required topic items have been completed
-    $sql = "SELECT i.*, o.managersignoff, s.signedoff, CASE WHEN c.status IS NULL THEN ".OJT_INCOMPLETE." ELSE c.status END AS status
+    // Check if all required topic items have been completed.
+    $items = $DB->get_records_sql(
+        'SELECT
+            i.id,
+            i.completionreq,
+            s.signedoff,
+            CASE WHEN c.status IS NULL THEN ? ELSE c.status END AS status
         FROM {ojt_topic_item} i
         LEFT JOIN {ojt_completion} c
             ON i.id = c.topicitemid
-            AND c.ojtid = $ojtid
-            AND c.type =".OJT_CTYPE_TOPICITEM."
-            AND c.userid = $userid
-        LEFT JOIN {ojt} o ON o.id = $ojtid
+            AND c.ojtid = ?
+            AND c.type = ?
+            AND c.userid = ?
         LEFT JOIN {ojt_topic_signoff} s
-            ON s.userid = $userid
-            AND s.topicid = $topicid
-        WHERE i.topicid = $topicid";
-    $items = $DB->get_records_sql($sql);
+            ON s.userid = ?
+            AND s.topicid = ?
+        WHERE i.topicid = ?',
+        [
+            OJT_INCOMPLETE,
+            $ojtid,
+            OJT_CTYPE_TOPICITEM,
+            $userid,
+            $userid,
+            $topicid,
+            $topicid
+        ]
+    );
 
     $status = OJT_COMPLETE;
     if (!empty($items)) {
@@ -143,7 +156,7 @@ function ojt_update_topic_completion($userid, $ojtid, $topicid) {
                     // Degrade status a bit
                     $status = OJT_REQUIREDCOMPLETE;
                 }
-            } else if (!empty($item->managersignoff) && empty($item->signedoff)) {
+            } else if (!empty($ojt->managersignoff) && empty($item->signedoff)) {
                 // Item requires manager sign-off and isn't signed off - also bail!
                 $status = OJT_INCOMPLETE;
                 break;

@@ -407,7 +407,7 @@ class rb_source_ojt_topic_item_completion extends rb_base_source {
      * Inject column_test data into database.
      * @param totara_reportbuilder_column_testcase $testcase
      */
-    public function phpunit_column_test_add_data(totara_reportbuilder_column_testcase $testcase) {
+    public function phpunit_column_test_add_data(totara_reportbuilder_column_test $testcase) {
        global $DB;
 
        if (!PHPUNIT_TEST) {

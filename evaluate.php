@@ -57,6 +57,10 @@ if (!($canevaluate || $cansignoff || $canwitness)) {
     print_error('accessdenied', 'ojt');
 }
 
+// Mark viewed by user (if required).
+$completion = new completion_info($course);
+$completion->set_module_viewed($cm);
+
 $userojt = ojt_get_user_ojt($ojt->id, $userid);
 
 // Print the page header.
@@ -90,8 +94,6 @@ $jsmodule = array(
     'requires' => array('json')
 );
 $PAGE->requires->js_init_call('M.mod_ojt_expandcollapse.init', array(), false, $jsmodule);
-
-
 
 // Output starts here.
 echo $OUTPUT->header();

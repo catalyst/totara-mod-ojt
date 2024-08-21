@@ -81,6 +81,9 @@ if ($canevalself && !($canevaluate || $cansignoff)) {
         array('userid' => $USER->id, 'bid' => $ojt->id)));
 }
 
+// Mark viewed by user (if required).
+$completion = new completion_info($course);
+$completion->set_module_viewed($cm);
 
 // Output starts here.
 echo $OUTPUT->header();

@@ -2,17 +2,11 @@
 
 See https://github.com/catalyst/totara-mod-ojt/wiki for overview and help ;)
 
-#### Branches
+#### Supported Branches
 | Totara version    | Branch      |
 | ----------------- | ----------- |
-| Totara 2.6        | OJT_26      |
-| Totara 2.7        | OJT_27      |
-| Totara 2.9        | OJT_28      |
-| Totara 9          | OJT_9       |
-| Totara 10         | OJT_10      |
-| Totara 11         | OJT_11      |
-| Totara 12         | OJT_12      |
-| Totara 13+        | master      |
+| Totara 17 - 18    | master      |
+| Totara 19         | contact: dan at catalyst.net.nz|
 
 #### Credits
 * Contributed to the open source community through development commissioned by Customs New Zealand :)
